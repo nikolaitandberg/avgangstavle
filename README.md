@@ -10,7 +10,7 @@ For å installere prosjektet, følg disse trinnene:
 
 1. Klon repoet:
 ```
-git clone repository-url
+git clone https://github.com/nikolaitandberg/avgangstavle.git
 ```
 2. Naviger til prosjektmappen:
 
@@ -50,6 +50,6 @@ Dette prosjektet er lisensiert under MIT-lisensen - se LICENSE.md filen for deta
 
 ## Kontakt
 
-Ditt Navn - nikolai.tandbe@gmail.com
+Nikolai Tandber - nikolai.tandbe@gmail.com
 
-Prosjektlenke: https://github.com/ditt_brukernavn/repo_navn
+Prosjektlenke: https://github.com/nikolaitandberg/avgangstavle.git
