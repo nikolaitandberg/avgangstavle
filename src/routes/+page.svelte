@@ -3,12 +3,15 @@
     import { XMLParser } from 'fast-xml-parser';
     import textEncoding from 'text-encoding';
 
+    // Data variables
     let flightData = null;
     let airportData = null;
     let airlineData = null;
 
+    // Selected airport
     let selectedAirport = 'OSL';
 
+    // Helper functions
     function convertISOToTime(isoString) {
         const date = new Date(isoString);
         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -17,38 +20,19 @@
     function flightIsAfterCurrentTime(flight) {
         const scheduledTime = new Date(flight.schedule_time);
         const now = new Date();
+        const newTime = flight.status && flight.status.code === 'E' ? new Date(flight.status.time) : null;
 
-        if (scheduledTime.getTime() >= now.getTime()) {
-            return true;
-        }
-
-        if (flight.status && flight.status.code === 'E') {
-            const newTime = new Date(flight.status.time);
-            return newTime.getTime() >= now.getTime();
-        }
-        return false;
+        return scheduledTime.getTime() >= now.getTime() || (newTime && newTime.getTime() >= now.getTime());
     }
 
-    function airportCodeToName(airportIATA) {
-        const airport = airportData.find(airport => airport.code === airportIATA);
-        return airport ? airport.name : "airport not found";
+    function codeToName(data, code) {
+        const item = data.find(item => item.code === code);
+        return item ? item.name : "not found";
     }
 
-    function airlineCodeToName(airlineIATA) {
-        const airline = airlineData.find(airline => airline.code === airlineIATA);
-        return airline ? airline.name : "airline not found";
-    }
-
-    async function fetchFlights() {
-        const flightDataURL = `https://flydata.avinor.no/XmlFeed.asp?TimeFrom=1TimeTo=7&airport=${selectedAirport}&direction=D&lastUpdate=2009-03-10T15:03:00Z`;
-        const flightDataResult = await fetchData(flightDataURL);
-        flightData = flightDataResult.airport.flights.flight.filter(flightIsAfterCurrentTime);
-    }
-
-    async function fetchData(url, e) {
+    // Fetch data functions
+    async function fetchData(url, encoding = 'windows-1252') {
         try {
-            const encoding = 'windows-1252';
-
             const response = await fetch(url);
             const buffer = await response.arrayBuffer();
             const decoder = new textEncoding.TextDecoder(encoding);
@@ -66,39 +50,40 @@
         }
     }
 
-    onMount(async () => {
-        const flightDataURL = `https://flydata.avinor.no/XmlFeed.asp?TimeFrom=1&TimeTo=7&airport=${selectedAirport}&direction=D&lastUpdate=2009-03-10T15:03:00Z`;
-        const flightTestDataURL = 'flights-testData.xml'
+    async function fetchFlights() {
+        const flightDataURL = `https://flydata.avinor.no/XmlFeed.asp?TimeFrom=1TimeTo=7&airport=${selectedAirport}&direction=D&lastUpdate=2009-03-10T15:03:00Z`;
         const flightDataResult = await fetchData(flightDataURL);
         flightData = flightDataResult.airport.flights.flight.filter(flightIsAfterCurrentTime);
+    }
+
+    // Fetch data on mount
+    onMount(async () => {
+        fetchFlights();
 
         const airportDataURL = 'https://flydata.avinor.no/airportNames.asp';
-        const airportTestDataURL = 'airportNames-testdata.xml'
         const airportDataResult = await fetchData(airportDataURL);
         airportData = airportDataResult.airportNames.airportName;
 
         const airlineDataURL = 'https://flydata.avinor.no/airlineNames.asp';
-        const airlineTestDataURL = 'airlineNames-testData.xml';
         const airlineDataResult = await fetchData(airlineDataURL);
         airlineData = airlineDataResult.airlineNames.airlineName;
     });
 </script>
 
+<!-- HTML Markup -->
 <nav class="container-fluid">
     <ul>
       <li><strong>Avgangstavle</strong></li>
     </ul>
     <ul>
       <li><a href="https://avinor.no">Flydata fra avinor</a></li>
-      <li><a href="#">Github</a></li>
+      <li><a href="https://github.com/nikolaitandberg/avgangstavle">Github</a></li>
     </ul>
-  </nav>
+</nav>
 <main class="container">
     <h1>Neste avganger fra</h1>
     <select name="valgt-flyplass" aria-label="velg flyplass" required bind:value={selectedAirport} on:change={fetchFlights}>
-        <option selected disabled value="">
-            velg flyplass
-        </option>
+        <option selected disabled value="">velg flyplass</option>
         <option>OSL</option>
         <option>BGO</option>
         <option>SVG</option>
@@ -130,8 +115,8 @@
                                 <span style="visibility: hidden;">placeholder</span>
                             {/if}
                         </th>
-                        <td>{airportCodeToName(flight.airport)}</td>
-                        <td>{flight.flight_id} <br> {airlineCodeToName(flight.airline)}</td>
+                        <td>{codeToName(airportData, flight.airport)}</td>
+                        <td>{flight.flight_id} <br> {codeToName(airlineData, flight.airline)}</td>
                         <td>
                             {#if flight.status && flight.status.code != 'C' || !flight.status && flight.gate}
                                 Gate {flight.gate}
