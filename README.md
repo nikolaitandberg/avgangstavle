@@ -52,4 +52,4 @@ Dette prosjektet er lisensiert under MIT-lisensen - se LICENSE.md filen for deta
 
 Nikolai Tandberg - nikolai.tandbe@gmail.com
 
-Prosjektlenke: https://github.com/nikolaitandberg/avgangstavle.git
+Prosjektlenke: https://github.com/nikolaitandberg/avgangstavle
