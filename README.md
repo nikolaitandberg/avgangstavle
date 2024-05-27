@@ -50,6 +50,6 @@ Dette prosjektet er lisensiert under MIT-lisensen - se LICENSE.md filen for deta
 
 ## Kontakt
 
-Nikolai Tandber - nikolai.tandbe@gmail.com
+Nikolai Tandberg - nikolai.tandbe@gmail.com
 
 Prosjektlenke: https://github.com/nikolaitandberg/avgangstavle.git
