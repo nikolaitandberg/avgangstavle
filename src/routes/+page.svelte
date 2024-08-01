@@ -11,6 +11,9 @@
     // Selected airport
     let selectedAirport = 'OSL';
 
+    // interval for updating data
+    const intervalDuration = 60000;
+
     // Helper functions
     function convertISOToTime(isoString) {
         const date = new Date(isoString);
@@ -58,7 +61,7 @@
 
     // Fetch data on mount
     onMount(async () => {
-        fetchFlights();
+        await fetchFlights();
 
         const airportDataURL = 'https://flydata.avinor.no/airportNames.asp';
         const airportDataResult = await fetchData(airportDataURL);
@@ -67,6 +70,9 @@
         const airlineDataURL = 'https://flydata.avinor.no/airlineNames.asp';
         const airlineDataResult = await fetchData(airlineDataURL);
         airlineData = airlineDataResult.airlineNames.airlineName;
+
+        // Set interval to refresh flight data
+        const intervalId = setInterval(fetchFlights, intervalDuration);
     });
 </script>
 
